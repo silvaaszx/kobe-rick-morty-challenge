@@ -1,29 +1,29 @@
-// lib/data/services/character_service.dart
-
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/character_model.dart';
 import '../../utils/constants.dart';
 
 class CharacterService {
-  // O método agora aceita um parâmetro de busca opcional.
-  Future<List<Character>> getCharacters({String? name}) async {
-    // Começamos com a URL base.
-    var urlString = ApiConstants.baseUrl + ApiConstants.charactersEndpoint;
-
-    // Se um nome foi fornecido e não está vazio, adicionamos o parâmetro de query.
-    if (name != null && name.isNotEmpty) {
-      urlString += '?name=$name';
-    }
-
-    final url = Uri.parse(urlString);
+  // O método agora aceita um parâmetro de busca e um de página.
+  Future<List<Character>> getCharacters({String? name, int page = 1}) async {
+    // Usamos Uri.https para construir a URL de forma mais segura e fácil.
+    // O primeiro argumento é a autoridade (o domínio), o segundo é o caminho.
+    // O terceiro é um Map com os parâmetros de query.
+    final uri = Uri.https(
+      'rickandmortyapi.com', // Autoridade
+      '/api/character',      // Caminho
+      <String, String>{
+        'page': page.toString(),
+        if (name != null && name.isNotEmpty) 'name': name,
+      },
+    );
 
     try {
-      final response = await http.get(url);
+      final response = await http.get(uri);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-        final List<dynamic> results = data['results'];
+        final List<dynamic> results = data['results'] ?? []; // Usamos ?? [] para segurança
 
         final List<Character> characters = results.map((charJson) {
           return Character.fromJson(charJson);
@@ -31,11 +31,8 @@ class CharacterService {
 
         return characters;
       } else if (response.statusCode == 404) {
-        // A API retorna 404 se nenhum personagem for encontrado com o nome.
-        // Nesse caso, retornamos uma lista vazia.
         return [];
-      }
-      else {
+      } else {
         throw Exception('Falha ao carregar os personagens');
       }
     } catch (e) {

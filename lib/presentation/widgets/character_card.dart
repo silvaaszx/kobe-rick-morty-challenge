@@ -1,4 +1,5 @@
 
+import 'package:cached_network_image/cached_network_image.dart';
 import '../screens/detail_screen.dart';
 import 'package:flutter/material.dart';
 import '../../data/models/character_model.dart';
@@ -35,25 +36,22 @@ class CharacterCard extends StatelessWidget {
         child: Stack(
           children: [
             // A imagem do personagem, que cobre todo o card.
-            Image.network(
-              character.imageUrl,
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return const SizedBox(
-                  height: 200,
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return const SizedBox(
-                  height: 200,
-                  child: Center(child: Icon(Icons.error)),
-                );
-              },
-            ),
+            CachedNetworkImage(
+  imageUrl: character.imageUrl,
+  height: 200,
+  width: double.infinity,
+  fit: BoxFit.cover,
+  // O que mostrar enquanto a imagem está sendo baixada pela primeira vez.
+  placeholder: (context, url) => const SizedBox(
+    height: 200,
+    child: Center(child: CircularProgressIndicator()),
+  ),
+  // O que mostrar se der erro ao baixar a imagem.
+  errorWidget: (context, url, error) => const SizedBox(
+    height: 200,
+    child: Center(child: Icon(Icons.error)),
+  ),
+),
 
             // Eu posiciono o nome na parte de baixo.
             Positioned(
