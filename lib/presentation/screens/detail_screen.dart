@@ -1,5 +1,6 @@
 // lib/presentation/screens/detail_screen.dart
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../data/models/character_model.dart';
 
@@ -10,74 +11,66 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Eu uso um tema para pegar as cores e fontes padrão.
-    final theme = Theme.of(context);
-
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        // A seta de "voltar" já aparece automaticamente.
         title: Text(character.name),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
-      // Uso um SingleChildScrollView para garantir que a tela role em celulares menores.
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // A imagem do personagem no topo.
-            Image.network(
-              character.imageUrl,
-              height: 300,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-            const SizedBox(height: 16.0),
-
-            // O nome do personagem como um título grande.
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                character.name,
-                style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                child: CachedNetworkImage(
+                  imageUrl: character.imageUrl,
+                  placeholder: (context, url) => const AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                ),
               ),
             ),
-            const SizedBox(height: 24.0),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                padding: const EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF5C6BC0),
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      character.name.toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildStatusInfo(character.status, character.species),
+                    const SizedBox(height: 24),
+                    
+                    // AQUI ESTÁ A ALTERAÇÃO
+                    // Eu adiciono a informação de Gênero aqui, mantendo o design limpo.
+                    _buildLabeledInfo('GÊNERO:', character.gender),
+                    const SizedBox(height: 16),
 
-            // Eu crio um widget reutilizável para cada linha de informação.
-            _buildInfoRow(
-              context: context,
-              icon: Icons.monitor_heart,
-              label: 'Status',
-              value: character.status,
-            ),
-            _buildInfoRow(
-              context: context,
-              icon: Icons.psychology,
-              label: 'Espécie',
-              value: character.species,
-            ),
-            _buildInfoRow(
-              context: context,
-              icon: Icons.transgender,
-              label: 'Gênero',
-              value: character.gender,
-            ),
-            _buildInfoRow(
-              context: context,
-              icon: Icons.public,
-              label: 'Origem',
-              value: character.originName,
-            ),
-            _buildInfoRow(
-              context: context,
-              icon: Icons.location_on,
-              label: 'Última Localização',
-              value: character.locationName,
-            ),
-             _buildInfoRow(
-              context: context,
-              icon: Icons.movie,
-              label: 'Primeira Aparição',
-              value: 'Episódio (a ser buscado)', // Placeholder
+                    _buildLabeledInfo('ÚLTIMA LOCALIZAÇÃO CONHECIDA:', character.locationName),
+                    const SizedBox(height: 16),
+                    _buildLabeledInfo('PRIMEIRA APARIÇÃO EM:', 'Episódio (a ser buscado)'),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -85,35 +78,59 @@ class DetailScreen extends StatelessWidget {
     );
   }
 
-  // Este é um método privado para construir cada linha de detalhe.
-  // Isso evita repetição de código.
-  Widget _buildInfoRow({
-    required BuildContext context,
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(
-        children: [
-          Icon(icon, color: theme.colorScheme.secondary, size: 20),
-          const SizedBox(width: 16),
-          Text(
-            '$label: ',
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+  Widget _buildStatusInfo(String status, String species) {
+    Color statusColor;
+    switch (status.toLowerCase()) {
+      case 'alive':
+        statusColor = Colors.greenAccent;
+        break;
+      case 'dead':
+        statusColor = Colors.redAccent;
+        break;
+      default:
+        statusColor = Colors.grey;
+    }
+
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: statusColor,
+            shape: BoxShape.circle,
           ),
-          // O Expanded garante que o valor ocupe o resto do espaço, quebrando a linha se necessário.
-          Expanded(
-            child: Text(
-              value,
-              style: theme.textTheme.titleMedium,
-              overflow: TextOverflow.ellipsis,
-            ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          '$status - $species',
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLabeledInfo(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.8),
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+          ),
+        ),
+      ],
     );
   }
 }

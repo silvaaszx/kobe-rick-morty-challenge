@@ -60,17 +60,19 @@ class CharacterCard extends StatelessWidget {
               right: 0,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-                color: Colors.black.withOpacity(0.6),
+                color: const Color(0xFF5C6BC0), // Um azul/índigo parecido com o do design
                 child: Text(
-                  character.name,
+                  // Deixo o texto em maiúsculas, como no design.
+                  character.name.toUpperCase(),
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+    fontSize: 16.0, // Ajusto o tamanho da fonte
+    fontWeight: FontWeight.bold,
+    letterSpacing: 1.2, // Adiciono um espaçamento para ficar mais elegante
+  ),
+  maxLines: 1,
+  overflow: TextOverflow.ellipsis,
+),
               ),
             ),
           ],
