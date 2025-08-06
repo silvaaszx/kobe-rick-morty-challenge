@@ -1,6 +1,8 @@
 
+import '../screens/detail_screen.dart';
 import 'package:flutter/material.dart';
 import '../../data/models/character_model.dart';
+
 
 class CharacterCard extends StatelessWidget {
   final Character character;
@@ -12,9 +14,16 @@ class CharacterCard extends StatelessWidget {
     // Eu envolvo meu Card com um InkWell pra ele ser clicável e ter o efeito de splash.
     return InkWell(
       onTap: () {
-        // Por enquanto, só testo o clique no console.
-        print('Toquei no card do personagem: ${character.name}');
-      },
+  // Eu uso o Navigator para empurrar uma nova rota (tela) na pilha.
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      // A nova tela a ser construída é a DetailScreen.
+      // Eu passo o objeto 'character' completo para o construtor dela.
+      builder: (context) => DetailScreen(character: character),
+    ),
+  );
+},
       child: Card(
         elevation: 4.0,
         margin: const EdgeInsets.all(8.0),
