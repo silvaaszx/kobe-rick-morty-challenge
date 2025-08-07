@@ -3,18 +3,36 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../data/models/character_model.dart';
+import '../../data/services/character_service.dart'; // Preciso do serviço aqui agora
 
-class DetailScreen extends StatelessWidget {
+// 1. Eu transformo a tela em um StatefulWidget
+class DetailScreen extends StatefulWidget {
   final Character character;
 
   const DetailScreen({super.key, required this.character});
+
+  @override
+  State<DetailScreen> createState() => _DetailScreenState();
+}
+
+class _DetailScreenState extends State<DetailScreen> {
+  // 2. Crio uma instância do serviço e uma variável para o resultado do episódio
+  final CharacterService _service = CharacterService();
+  late Future<Map<String, dynamic>> _episodeFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    // 3. Assim que a tela inicia, eu chamo o método para buscar os dados do episódio
+    _episodeFuture = _service.getDataFromUrl(widget.character.firstEpisodeUrl);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(character.name),
+        title: Text(widget.character.name),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -26,7 +44,7 @@ class DetailScreen extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12.0),
                 child: CachedNetworkImage(
-                  imageUrl: character.imageUrl,
+                  imageUrl: widget.character.imageUrl,
                   placeholder: (context, url) => const AspectRatio(
                     aspectRatio: 16 / 9,
                     child: Center(child: CircularProgressIndicator()),
@@ -48,7 +66,7 @@ class DetailScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      character.name.toUpperCase(),
+                      widget.character.name.toUpperCase(),
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -57,17 +75,31 @@ class DetailScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildStatusInfo(character.status, character.species),
+                    _buildStatusInfo(widget.character.status, widget.character.species),
                     const SizedBox(height: 24),
+                    _buildLabeledInfo('GÊNERO:', widget.character.gender),
+                    const SizedBox(height: 16),
+                    _buildLabeledInfo('ÚLTIMA LOCALIZAÇÃO CONHECIDA:', widget.character.locationName),
+                    const SizedBox(height: 16),
                     
-                    // AQUI ESTÁ A ALTERAÇÃO
-                    // Eu adiciono a informação de Gênero aqui, mantendo o design limpo.
-                    _buildLabeledInfo('GÊNERO:', character.gender),
-                    const SizedBox(height: 16),
-
-                    _buildLabeledInfo('ÚLTIMA LOCALIZAÇÃO CONHECIDA:', character.locationName),
-                    const SizedBox(height: 16),
-                    _buildLabeledInfo('PRIMEIRA APARIÇÃO EM:', 'Episódio (a ser buscado)'),
+                    // 4. AQUI ESTÁ A MÁGICA! Eu uso um FutureBuilder para exibir o nome do episódio
+                    FutureBuilder<Map<String, dynamic>>(
+                      future: _episodeFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          // Enquanto carrega, mostro um indicador
+                          return _buildLabeledInfo('PRIMEIRA APARIÇÃO EM:', 'Carregando...');
+                        } else if (snapshot.hasError) {
+                          return _buildLabeledInfo('PRIMEIRA APARIÇÃO EM:', 'Erro');
+                        } else if (snapshot.hasData) {
+                          // Quando os dados chegam, eu pego o nome do episódio do JSON
+                          final episodeName = snapshot.data?['name'] ?? 'Desconhecido';
+                          return _buildLabeledInfo('PRIMEIRA APARIÇÃO EM:', episodeName);
+                        } else {
+                          return _buildLabeledInfo('PRIMEIRA APARIÇÃO EM:', 'N/A');
+                        }
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -78,6 +110,7 @@ class DetailScreen extends StatelessWidget {
     );
   }
 
+  // ... os widgets de construção de UI continuam os mesmos ...
   Widget _buildStatusInfo(String status, String species) {
     Color statusColor;
     switch (status.toLowerCase()) {

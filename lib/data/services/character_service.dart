@@ -1,17 +1,16 @@
+// lib/data/services/character_service.dart
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/character_model.dart';
 import '../../utils/constants.dart';
 
 class CharacterService {
-  // O método agora aceita um parâmetro de busca e um de página.
+  // Este método busca a lista de personagens com suporte para busca e paginação.
   Future<List<Character>> getCharacters({String? name, int page = 1}) async {
-    // Usamos Uri.https para construir a URL de forma mais segura e fácil.
-    // O primeiro argumento é a autoridade (o domínio), o segundo é o caminho.
-    // O terceiro é um Map com os parâmetros de query.
     final uri = Uri.https(
-      'rickandmortyapi.com', // Autoridade
-      '/api/character',      // Caminho
+      'rickandmortyapi.com',
+      '/api/character',
       <String, String>{
         'page': page.toString(),
         if (name != null && name.isNotEmpty) 'name': name,
@@ -23,7 +22,7 @@ class CharacterService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-        final List<dynamic> results = data['results'] ?? []; // Usamos ?? [] para segurança
+        final List<dynamic> results = data['results'] ?? [];
 
         final List<Character> characters = results.map((charJson) {
           return Character.fromJson(charJson);
@@ -34,6 +33,28 @@ class CharacterService {
         return [];
       } else {
         throw Exception('Falha ao carregar os personagens');
+      }
+    } catch (e) {
+      throw Exception('Erro de conexão: $e');
+    }
+  }
+
+  // AQUI ESTÁ O NOVO MÉTODO
+  // Ele busca dados de uma URL específica, como a de um episódio.
+  Future<Map<String, dynamic>> getDataFromUrl(String url) async {
+    // Se por algum motivo a URL estiver vazia, eu retorno um resultado padrão.
+    if (url.isEmpty) {
+      return {'name': 'N/A'};
+    }
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        // Se a chamada for bem-sucedida, eu retorno o JSON decodificado.
+        return json.decode(response.body);
+      } else {
+        throw Exception('Falha ao carregar dados da URL');
       }
     } catch (e) {
       throw Exception('Erro de conexão: $e');
