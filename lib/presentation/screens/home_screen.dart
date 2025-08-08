@@ -15,7 +15,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // ... toda a sua lógica de busca e paginação continua aqui, sem alterações ...
   final CharacterService _characterService = CharacterService();
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -86,7 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
   
-  // O método build agora retorna apenas o conteúdo, sem Scaffold.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -95,8 +93,9 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.all(8.0),
           child: TextField(
             controller: _searchController,
+            // AQUI ESTÁ A TRADUÇÃO FINAL
             decoration: InputDecoration(
-              labelText: 'Procurar por nome',
+              labelText: 'Search by name',
               hintText: 'Ex: Rick, Morty, Beth...',
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
@@ -118,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return const Center(child: CircularProgressIndicator());
     }
     if (_characters.isEmpty) {
-      return const Center(child: Text('Nenhum personagem encontrado.'));
+      return const Center(child: Text('No characters found.'));
     }
     return ListView.builder(
       controller: _scrollController,
