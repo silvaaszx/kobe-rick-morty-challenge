@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../data/models/character_model.dart';
 import '../../data/services/character_service.dart';
-import '../widgets/custom_app_bar.dart'; // Eu importo nossa AppBar customizada
+import '../widgets/custom_app_bar.dart';
 
 class DetailScreen extends StatefulWidget {
   final Character character;
@@ -29,12 +29,11 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      // AQUI ESTÁ A CORREÇÃO FINAL
-      // Eu uso a nossa CustomAppBar, passando 'showBackButton: true'.
       appBar: const CustomAppBar(showBackButton: true),
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // ... a imagem continua igual ...
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: ClipRRect(
@@ -61,6 +60,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // ... o nome e o status continuam iguais ...
                     Text(
                       widget.character.name.toUpperCase(),
                       style: const TextStyle(
@@ -73,24 +73,25 @@ class _DetailScreenState extends State<DetailScreen> {
                     const SizedBox(height: 16),
                     _buildStatusInfo(widget.character.status, widget.character.species),
                     const SizedBox(height: 24),
-                    _buildLabeledInfo('GÊNERO:', widget.character.gender),
+                    // AQUI ESTÃO AS TRADUÇÕES
+                    _buildLabeledInfo('GENDER:', widget.character.gender),
                     const SizedBox(height: 16),
-                    _buildLabeledInfo('ORIGEM:', widget.character.originName),
+                    _buildLabeledInfo('ORIGIN:', widget.character.originName),
                     const SizedBox(height: 16),
-                    _buildLabeledInfo('ÚLTIMA LOCALIZAÇÃO CONHECIDA:', widget.character.locationName),
+                    _buildLabeledInfo('LAST KNOWN LOCATION:', widget.character.locationName),
                     const SizedBox(height: 16),
                     FutureBuilder<Map<String, dynamic>>(
                       future: _episodeFuture,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
-                          return _buildLabeledInfo('PRIMEIRA APARIÇÃO EM:', 'Carregando...');
+                          return _buildLabeledInfo('FIRST SEEN IN:', 'Loading...');
                         } else if (snapshot.hasError) {
-                          return _buildLabeledInfo('PRIMEIRA APARIÇÃO EM:', 'Erro');
+                          return _buildLabeledInfo('FIRST SEEN IN:', 'Error');
                         } else if (snapshot.hasData) {
-                          final episodeName = snapshot.data?['name'] ?? 'Desconhecido';
-                          return _buildLabeledInfo('PRIMEIRA APARIÇÃO EM:', episodeName);
+                          final episodeName = snapshot.data?['name'] ?? 'Unknown';
+                          return _buildLabeledInfo('FIRST SEEN IN:', episodeName);
                         } else {
-                          return _buildLabeledInfo('PRIMEIRA APARIÇÃO EM:', 'N/A');
+                          return _buildLabeledInfo('FIRST SEEN IN:', 'N/A');
                         }
                       },
                     ),
@@ -104,6 +105,7 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
+  // ... os métodos de build continuam os mesmos ...
   Widget _buildStatusInfo(String status, String species) {
     Color statusColor;
     switch (status.toLowerCase()) {

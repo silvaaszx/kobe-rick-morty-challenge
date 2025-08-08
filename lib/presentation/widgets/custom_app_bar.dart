@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  // Eu adiciono uma nova propriedade para controlar o botão da esquerda.
   final bool showBackButton;
 
-  // O valor padrão de showBackButton é false.
   const CustomAppBar({super.key, this.showBackButton = false});
 
   @override
@@ -16,9 +14,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       backgroundColor: Colors.transparent,
       toolbarHeight: 120,
-      // Eu uso o 'automaticallyImplyLeading: false' para ter controle total.
       automaticallyImplyLeading: false,
-      // Agora o leading depende da minha nova propriedade.
       leading: showBackButton
           ? IconButton(
               icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
@@ -26,11 +22,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             )
           : IconButton(
               icon: const Icon(Icons.menu, color: Colors.white),
-              onPressed: () {
-                print('Menu clicado!');
-              },
+              // AQUI ESTÁ A CORREÇÃO
+              // Este comando abre o menu lateral (Drawer) do Scaffold.
+              onPressed: () => Scaffold.of(context).openDrawer(),
             ),
       title: Column(
+        // ... o resto do código do title continua igual ...
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SvgPicture.asset(
