@@ -1,5 +1,6 @@
 // lib/presentation/screens/home_screen.dart
 
+import '../widgets/custom_app_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -101,33 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       // AQUI ESTÁ O AJUSTE FINAL
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        // Aumento ainda mais a altura para dar um ar mais "premium".
-        toolbarHeight: 120, 
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Aumento o tamanho do logo.
-            SvgPicture.asset(
-              'assets/images/app_logo.svg',
-              height: 60, 
-            ),
-            const SizedBox(height: 10), // Aumento o espaçamento
-            // Aumento o tamanho da fonte do texto.
-            const Text(
-              'RICK AND MORTY API',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.white70,
-                letterSpacing: 2.0, // Aumento o espaçamento entre letras
-              ),
-            ),
-          ],
-        ),
-      ),
+      appBar:const CustomAppBar(),
       body: Column(
         children: [
           Padding(
