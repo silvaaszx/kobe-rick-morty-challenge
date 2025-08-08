@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../data/models/character_model.dart';
 import '../../data/services/character_service.dart';
+import '../widgets/custom_app_bar.dart'; // Eu importo nossa AppBar customizada
 
 class DetailScreen extends StatefulWidget {
   final Character character;
@@ -28,16 +29,9 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(widget.character.name),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-      ),
+      // AQUI ESTÁ A CORREÇÃO FINAL
+      // Eu uso a nossa CustomAppBar, passando 'showBackButton: true'.
+      appBar: const CustomAppBar(showBackButton: true),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -81,12 +75,8 @@ class _DetailScreenState extends State<DetailScreen> {
                     const SizedBox(height: 24),
                     _buildLabeledInfo('GÊNERO:', widget.character.gender),
                     const SizedBox(height: 16),
-                    
-                    // AQUI ESTÁ A CORREÇÃO
-                    // Eu adiciono o campo 'Origem' que estava faltando.
                     _buildLabeledInfo('ORIGEM:', widget.character.originName),
                     const SizedBox(height: 16),
-
                     _buildLabeledInfo('ÚLTIMA LOCALIZAÇÃO CONHECIDA:', widget.character.locationName),
                     const SizedBox(height: 16),
                     FutureBuilder<Map<String, dynamic>>(
